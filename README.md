@@ -1,2 +1,5 @@
 # subsync
-Download media from subsonic server for local playback and scrobble plays back to the server
+
+Python minimum version: 3.9?
+Python tested on: 3.11
+Tested Subsonic server: Navidrome
