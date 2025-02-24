@@ -1,4 +1,4 @@
-import requests, pprint, json, argparse
+import requests, pprint, json, argparse, re
 from urllib.parse import urljoin
 
 with open("config.json", "r") as f:
@@ -36,9 +36,20 @@ class subsonic_server():
     
     def get_json(self, endpoint, params = {}):
         params = self.parameters | params
-        print(params)
         request = requests.get(self.serverurl + endpoint, params=params).json()
         return request
+    
+    def get_binary(self, endpoint, params = {}):
+        params = self.parameters | params
+        request = requests.get(self.serverurl + endpoint, params=params)
+        content_disposition = request.headers.get('Content-Disposition', '')
+        filename_match = re.findall('filename="([^"]+)"', content_disposition)
+
+        if filename_match:
+            filename = filename_match[0]  # Use the filename from the header
+        else:
+            filename = "test"  # Use a default filename if not provided
+        return filename, request.content
 
 
 def get_albums_byartist(artistid):
@@ -73,7 +84,15 @@ if args.artist and not args.album:
 if args.artist and args.album:
     albums = get_albums_byartist(artists[args.artist])
     albumid = albums[args.album]
-    print(albumid)
+    tracks = connection.get_json("getAlbum", {"id": albumid})
+    #filename, file = connection.get_binary()
+    pprint.pprint(tracks)
+    for item in tracks["subsonic-response"]["album"]["song"]:
+        filename, file = connection.get_binary("download", {"id": item["id"]})
+        with open(filename, "wb") as f:
+            f.write(file)
+            f.close
+        print(filename)
 
 #idk what to do if only album is given
 if args.album and not args.artist:
