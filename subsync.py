@@ -42,6 +42,9 @@ class subsonic_server():
     def get_binary(self, endpoint, params = {}):
         params = self.parameters | params
         request = requests.get(self.serverurl + endpoint, params=params)
+        content_type = request.headers.get('Content-Type', '').lower()
+        if content_type == "application/json":
+            print("Not a file")
         content_disposition = request.headers.get('Content-Disposition', '')
         filename_match = re.findall('filename="([^"]+)"', content_disposition)
 
@@ -61,6 +64,34 @@ def get_albums_byartist(artistid):
         albums[item["name"]] = item["id"]
     return albums
 
+def search_dict(d, search_key):
+    # First, check for an exact match
+    if search_key in d:
+        return d[search_key]
+    
+    # If no exact match, search for keys that start with the search_key (case insensitive)
+    matching_keys = [key for key in d.keys() if key.lower().startswith(search_key.lower())]
+    
+    if not matching_keys:
+        return None  # No matches found
+    elif len(matching_keys) == 1:
+        return d[matching_keys[0]]  # Return the value for the single matching key
+    else:
+        # If multiple matches, ask the user to pick one
+        print("Multiple matches found. Please choose one:")
+        for i, key in enumerate(matching_keys, 1):
+            print(f"{i}. {key}")
+        
+        while True:
+            try:
+                choice = int(input("Enter the number of your choice: "))
+                if 1 <= choice <= len(matching_keys):
+                    return d[matching_keys[choice - 1]]
+                else:
+                    print("Invalid choice. Please try again.")
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+
 connection = subsonic_server(config["server"])
 connection.test_connection()
 
@@ -77,13 +108,15 @@ if args.artists == True:
 
 # Print out albums by artist
 if args.artist and not args.album:
-    albums = get_albums_byartist(artists[args.artist])
+    artist = search_dict(artists, args.artist)
+    albums = get_albums_byartist(artist)
     pprint.pprint(albums)
 
 # Download based on artist and album name
 if args.artist and args.album:
-    albums = get_albums_byartist(artists[args.artist])
-    albumid = albums[args.album]
+    artist = search_dict(artists, args.artist)
+    albums = get_albums_byartist(artist)
+    albumid = search_dict(albums, args.album)
     tracks = connection.get_json("getAlbum", {"id": albumid})
     #filename, file = connection.get_binary()
     pprint.pprint(tracks)
