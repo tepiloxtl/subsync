@@ -1,0 +1,8 @@
+{
+    "server": {
+        "host": "https://your.subsonic.server.here",
+        "port": "443",
+        "username": "your username",
+        "password": "your password"
+    }
+}
