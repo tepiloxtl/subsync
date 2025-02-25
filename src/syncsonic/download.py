@@ -44,7 +44,6 @@ class subsonic_server():
 
 def get_albums_byartist(connection, artistid):
     albums = {}
-    #request = requests.get("https://nd.rocranon.arctozo.lt/rest/getArtist?id=" + str(artistid) + "&u=apitest&p=ApiTest123&v=1.16.1&c=SubSync&f=json").json()
     request = connection.get_json("getArtist", {"id": str(artistid)})
     #pprint.pprint(request)
     for item in request["subsonic-response"]["artist"]["album"]:
@@ -128,7 +127,6 @@ def run(config, args):
     connection.test_connection()
 
     #Get list of all artists on the server
-    #request = requests.get("https://nd.rocranon.arctozo.lt/rest/getArtists?u=apitest&p=ApiTest123&v=1.16.1&c=SubSync&f=json").json()
     request = connection.get_json("getArtists")
     for item in request["subsonic-response"]["artists"]["index"]:
         for item2 in item["artist"]:
