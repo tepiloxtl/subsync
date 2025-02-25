@@ -109,7 +109,7 @@ def download(args, connection, list):
             m3u_list.append(Path(listname, filename))
         write_m3u(listname, m3u_list)
     elif args.m3u_only:
-        os.makedirs("albums")
+        os.makedirs("albums", exist_ok=True)
         for item in ulist:
             m3u_list.append(Path(args.local_dir, item["path"]))
         write_m3u(listname, m3u_list)
