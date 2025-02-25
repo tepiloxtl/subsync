@@ -1,4 +1,5 @@
-import json, argparse, subsync_download
+import json, argparse
+from subsync import subsync_download
 
 with open("config.json", "r") as f:
     config = json.load(f)
