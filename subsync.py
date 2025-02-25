@@ -10,18 +10,21 @@ queries = argparser.add_argument_group("Queries")
 queries.add_argument("--artist", type=str)
 queries.add_argument("--album", type=str)
 queries.add_argument("--playlist", type=str)
-queries.add_argument("--albumid", type=str)
-queries.add_argument("--playlistid", type=str)
+queries.add_argument("--albumid", type=str, help="[NYI]")
+queries.add_argument("--playlistid", type=str, help = "[NYI]")
 listings = argparser.add_argument_group("List options")
 listings.add_argument("--list-artists", default=False, action="store_true", help="List all artists on the server")
-listings.add_argument("--list-albums", default=False, action="store_true", help="List artists albums or all albums on the server")
+listings.add_argument("--list-albums", default=False, action="store_true", help="[NYI]List artists albums or all albums on the server")
 listings.add_argument("--list-playlists", default=False, action="store_true", help="List all playlists on the server")
-_download_options = argparser.add_argument_group("Download options")
-download_options = _download_options.add_mutually_exclusive_group(required=False)
-download_options.add_argument("--download", "-D", action="store_true", help="Directly download files")
-download_options.add_argument("--transcode", "-T", action="store_true", help="Transcode and download files")
-download_options.add_argument("--m3u-only", action="store_true", help="Only write m3u files")
-argparser.add_argument("--dir", "-d", type=str)
+download_options = argparser.add_argument_group("Download options")
+download_options_ex = download_options.add_mutually_exclusive_group(required=False)
+download_options_ex.add_argument("--download", "-D", action="store_true", help="Directly download files")
+download_options_ex.add_argument("--transcode", "-T", action="store_true", help="Transcode and download files")
+download_options_ex.add_argument("--m3u-only", action="store_true", help="Only write m3u files")
+download_options.add_argument("--local-dir", type=str, help = "For --m3u-only, path for local library")
+download_options.add_argument("--format", type=str, help = "For transcoding, name of transcoding profile on the server")
+download_options.add_argument("--bitrate", type=str, help = "For transcoding, optional, bitrate")
+argparser.add_argument("--dir", "-d", type=str, help = "[NYI]")
 args = argparser.parse_args()
 
 artists = {}
@@ -105,6 +108,7 @@ def search_dict(d, search_key):
                 print("Invalid input. Please enter a number.")
 
 def download(list):
+    m3u_list = []
     if "album" in list["subsonic-response"]:
         listname = list["subsonic-response"]["album"]["artist"] + " - " + list["subsonic-response"]["album"]["name"]
         ulist = list["subsonic-response"]["album"]["song"]
@@ -119,10 +123,31 @@ def download(list):
                 f.write(file)
                 f.close
             print(filename)
+            m3u_list.append(Path(listname, filename))
+        write_m3u(listname, m3u_list)
     elif args.transcode:
-        pass
+        #TODO: Properly determine format/extension, unfuck that Path object
+        os.makedirs(Path("albums", listname))
+        for item in ulist:
+            filename, file = connection.get_binary("stream", {"id": item["id"], "format": args.format, "maxBitRate": args.bitrate})
+            filename = str(Path(item["path"]).stem) + "." + args.format
+            with open(Path("albums", listname, filename), "wb") as f:
+                f.write(file)
+                f.close
+            print(filename)
+            m3u_list.append(Path(listname, filename))
+        write_m3u(listname, m3u_list)
     elif args.m3u_only:
-        pass
+        os.makedirs("albums")
+        for item in ulist:
+            m3u_list.append(Path(args.local_dir, item["path"]))
+        write_m3u(listname, m3u_list)
+
+def write_m3u(filename, list):
+    with open(Path("albums", filename + ".m3u8"), "w", encoding="utf-8") as f:
+        f.write("#EXTM3U\n\n")
+        for item in list:
+            f.write(f'{item}\n')
 
 connection = subsonic_server(config["server"])
 connection.test_connection()
