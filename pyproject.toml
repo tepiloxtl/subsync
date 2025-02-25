@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "subsync"
-version = "0.0.1"
+name = "syncsonic"
+version = "0.1.0"
 authors = [
   { name="Tepiloxtl", email="tepiloxtl@tepiloxtl.net" },
 ]
@@ -15,10 +15,13 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-license = "GPL-3.0-only"
+license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
 dependencies = ["requests"]
 
+[project.scripts]
+syncsonic = "syncsonic.__main__:main"
+
 [project.urls]
-Homepage = "http://tepiloxtl.net"
-Issues = "http://tepiloxtl.net"
+Homepage = "https://github.com/tepiloxtl/syncsonic"
+Issues = "https://github.com/tepiloxtl/syncsonic/issues"

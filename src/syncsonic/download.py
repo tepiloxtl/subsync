@@ -12,7 +12,7 @@ class subsonic_server():
             "u": self.username,
             "p": self.password,
             "v": "1.16.1",
-            "c": "SubSync"
+            "c": "syncsonic"
         }
 
     def test_connection(self):
