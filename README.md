@@ -47,19 +47,13 @@ syncsonic --artist YonKaGor --album "Mr. Sunfish" --m3u-only --local-dir "X:/sub
 ```
 For when your Subsonic library is also available locally, requires --local-dir pointing to your library root directory. This function currently only makes sense if you have only one library directory on the server side
 
-### 6. Only create a playlist file for an album
-
-```bash
-syncsonic --artist YonKaGor --album "Mr. Sunfish" --m3u-only --local-dir "X:/subsoniclib"
-```
-
-### 7. List all available playlists on the server
+### 6. List all available playlists on the server
 
 ```bash
 syncsonic --list-playlists
 ```
 
-### 8. Download unprocessed playlist and create a playlist file
+### 7. Download unprocessed playlist and create a playlist file
 
 ```bash
 syncsonic --playlist "Music I care about" -D

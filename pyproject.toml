@@ -8,12 +8,17 @@ version = "0.1.0"
 authors = [
   { name="Tepiloxtl", email="tepiloxtl@tepiloxtl.net" },
 ]
-description = "A small example package"
+description = "Download media from subsonic server for local playback and scrobble plays back to server "
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Operating System :: OS Independent",
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console"
 ]
 license = "GPL-3.0-or-later"
 license-files = ["LICEN[CS]E*"]
