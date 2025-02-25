@@ -87,7 +87,7 @@ def download(args, connection, list):
         listname = list["subsonic-response"]["playlist"]["name"]
         ulist = list["subsonic-response"]["playlist"]["entry"]
     if args.download:
-        os.makedirs(Path("albums", listname))
+        os.makedirs(Path("albums", listname), exist_ok=True)
         for item in ulist:
             filename, file = connection.get_binary("download", {"id": item["id"]})
             with open(Path("albums", listname, filename), "wb") as f:
@@ -98,7 +98,7 @@ def download(args, connection, list):
         write_m3u(listname, m3u_list)
     elif args.transcode:
         #TODO: Properly determine format/extension, unfuck that Path object
-        os.makedirs(Path("albums", listname))
+        os.makedirs(Path("albums", listname), exist_ok=True)
         for item in ulist:
             filename, file = connection.get_binary("stream", {"id": item["id"], "format": args.format, "maxBitRate": args.bitrate})
             filename = str(Path(item["path"]).stem) + "." + args.format
@@ -156,11 +156,17 @@ def run(config, args):
         # with open("album.txt", "w", encoding="utf-8") as f:
         #     pprint.pprint(album, f)
         download(args, connection, album)
+    
+    # Download based on albumid
+    if args.albumid:
+        album = connection.get_json("getAlbum", {"id": args.albumid})
+        download(args, connection, album)
 
     #idk what to do if only album is given
     if args.album and not args.artist:
         print("asdf3")
 
+    # Download based on playlist name
     if args.playlist:
         playlists = connection.get_json("getPlaylists")
         #TODO this is probably some convoluted list comprehension
@@ -171,4 +177,9 @@ def run(config, args):
         playlist = connection.get_json("getPlaylist", {"id": playlistid})
         # with open("playlist.txt", "w", encoding="utf-8") as f:
         #     pprint.pprint(playlist, f)
+        download(args, connection, playlist)
+
+    # Download based on playlist id
+    if args.playlistid:
+        playlist = connection.get_json("getPlaylist", {"id": args.playlistid})
         download(args, connection, playlist)
